@@ -1,30 +1,39 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Password Manager</title>
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='styles/index.css') }}">
+    <title>prsc</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='styles/main.css') }}">
 </head>
 
 <body>
     <div id="passwordManager">
-        <h1>Prsc</h1>
-        <h2>Prsc - Password Manager</h2>
-        <label for="masterPassword">Мастер-пароль:</label>
-        <input type="password" id="masterPassword">
-        <button onclick="authenticateMasterPassword()">Ввод</button>
+        <h1>prsc</h1>
+        <h2>Менеджер паролей</h2>
 
-        <table id="passwordTable">
-            <tr>
-                <th>Сайт</th>
-                <th>Логин</th>
-                <th>Пароль</th>
-            </tr>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Сайт</th>
+                    <th>Логин</th>
+                    <th>Пароль</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in passwords %}
+                <tr>
+                    <td>{{ row[0] }}</td>
+                    <td>{{ row[1] }}</td>
+                    <td>{{ row[2] }}</td>
+                    <td>{{ row[3] }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
         </table>
 
-        <button onclick="addPassword()">Добавить пароль</button>
     </div>
 </body>
 

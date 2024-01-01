@@ -1,15 +1,16 @@
 body {
-    font-family: Arial, sans-serif;
+    font-family: Noto Sans JP, sans-serif;
     margin: 0;
     padding: 0;
     display: flex;
     justify-content: center;
     align-items: center;
     height: 100vh;
-    background-color: #f5f5f5;
+    background-color: #422777;
 }
 
 #passwordManager {
+    text-align: center;
     width: 400px;
     padding: 20px;
     background-color: #fff;
@@ -44,7 +45,7 @@ button {
     width: 100%;
     padding: 10px;
     margin-top: 10px;
-    background-color: #4caf50;
+    background-color: #422777;
     color: #fff;
     border: none;
     border-radius: 4px;
@@ -52,5 +53,5 @@ button {
 }
 
 button:hover {
-    background-color: #45a049;
+    background-color: #675292;
 }
