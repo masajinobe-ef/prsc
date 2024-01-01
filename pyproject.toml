@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "prsc"
+version = "0.1.0"
+description = "Free cross-platform password manager on Flask, Python, SQLite"
+authors = ["masajinobe-ef <priscilla.effects@gmail.com>"]
+license = "GPL-3.0 license"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+flask = "^3.0.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
