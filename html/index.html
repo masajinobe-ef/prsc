@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Password Manager</title>
+    <link rel="stylesheet" type="text/css" href="styles.css" />
+</head>
+
+<body>
+    <div id="passwordManager">
+        <h1>Prsc</h1>
+        <h2>Prsc - Password Manager</h2>
+        <label for="masterPassword">Мастер-пароль:</label>
+        <input type="password" id="masterPassword">
+        <button onclick="authenticateMasterPassword()">Ввод</button>
+
+        <table id="passwordTable">
+            <tr>
+                <th>Сайт</th>
+                <th>Логин</th>
+                <th>Пароль</th>
+            </tr>
+        </table>
+
+        <button onclick="addPassword()">Добавить пароль</button>
+    </div>
+</body>
+
+</html>
