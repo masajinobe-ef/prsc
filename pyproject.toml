@@ -11,6 +11,7 @@ python = "^3.12"
 flask = "^3.0.0"
 flask-sqlalchemy = "^3.1.1"
 cryptography = "^41.0.7"
+waitress = "^2.1.2"
 
 
 [build-system]

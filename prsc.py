@@ -1,38 +1,18 @@
 from flask import Flask, render_template, request, redirect, url_for, session
-from cryptography.fernet import Fernet
+from crypt import encrypt_password, decrypt_password
+from database import db_create
 import sqlite3
 import secrets
-import os
 
 app = Flask(__name__)
 
 # Генерация случайного секретного ключа для подписи сессии
 app.secret_key = secrets.token_hex(16)
 
-# Шифрование
-# Загрузка ключа шифрования из файла
-# (или создание нового при первом запуске)
-key_file = "key.key"
-if not os.path.exists(key_file):
-    key = Fernet.generate_key()
-    with open(key_file, "wb") as key_file:
-        key_file.write(key)
-else:
-    with open(key_file, "rb") as key_file:
-        key = key_file.read()
-
-cipher = Fernet(key)
+# Создание .db если не существует
+db_create()
 
 
-def encrypt_password(master_password: str) -> str:
-    return cipher.encrypt(master_password.encode())
-
-
-def decrypt_password(encrypted_password: str) -> str:
-    return cipher.decrypt(encrypted_password).decode()
-
-
-# Страница установки мастер-пароля
 @app.route('/master', methods=['GET', 'POST'])
 def master():
     if request.method == 'POST':
@@ -59,7 +39,6 @@ def master():
     return render_template('master.html')
 
 
-# Страница входа
 @app.route('/', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -79,6 +58,9 @@ def login():
             if master_password == decrypted_password:
                 session['authenticated'] = True
                 return redirect(url_for('display_db'))
+            else:
+                return render_template('index.html',
+                                       error="Отказано в доступе!")
 
     return render_template('index.html')
 
@@ -99,4 +81,6 @@ def display_db():
 
 
 if __name__ == '__main__':
+    # from waitress import serve
+    # serve(app, host="0.0.0.0", port=8080)
     app.run(debug=True)
