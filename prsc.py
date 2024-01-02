@@ -9,7 +9,7 @@ app = Flask(__name__)
 # Генерация случайного секретного ключа для подписи сессии
 app.secret_key = secrets.token_hex(16)
 
-# Создание .db если не существует
+# Создание .db, если не найден
 db_create()
 
 
@@ -22,7 +22,7 @@ def master():
         if master_password == confirm_master_password:
             encrypted_password = encrypt_password(master_password)
 
-            # Сохранение зашифрованного пароля в базе данных
+            # Сохранение зашифрованного мастер-пароля в базе данных
             conn = sqlite3.connect('prsc.db')
             cursor = conn.cursor()
             cursor.execute(

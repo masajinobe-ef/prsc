@@ -1,10 +1,6 @@
 from cryptography.fernet import Fernet
 import os
 
-# Шифрование
-# Загрузка ключа шифрования из файла
-# (или создание нового при первом запуске)
-
 
 def load_or_generate_key():
     key_file = "key.key"
