@@ -6,13 +6,13 @@ This cross-platform solution provides a secure and user-friendly way to store an
 
 Features:
 
-1. Master-password: Access your password vault securely by master-password into the PRSC application.
+1. Master-password: Access your password vault securely by master-password.
 2. Add Passwords: Easily add and store passwords with detailed information for each entry.
 3. Edit and Update: Modify existing password entries as needed, keeping your information up-to-date.
 4. Search Functionality: Quickly find specific passwords using the search feature.
-5. Security First: Utilizes advanced cryptography to ensure the highest level of password protection.
-6. SQLite Database: Stores password data efficiently and securely using the powerful SQLite database.
-7. User-Friendly Interface: Prioritizing ease of use, PRSC allows for convenient password management.
+5. Security: Cryptography to ensure high level of passwords protection.
+6. SQLite Database: Stores password data efficiently and securely using SQLite database.
+7. User-Friendly Interface: Prioritizing ease of use, allows convenient view passwords.
 
 ## Installation
 
