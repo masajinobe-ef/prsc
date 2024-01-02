@@ -3,7 +3,7 @@ import os
 
 
 def load_or_generate_key():
-    key_file = "key.key"
+    key_file = "data/key.key"
     if not os.path.exists(key_file):
         key = Fernet.generate_key()
         with open(key_file, "wb") as key_file:
@@ -17,9 +17,9 @@ def load_or_generate_key():
 cipher = load_or_generate_key()
 
 
-def encrypt_password(master_password: str) -> str:
+def encrypt_password(master_password: str):
     return cipher.encrypt(master_password.encode())
 
 
-def decrypt_password(encrypted_password: str) -> str:
+def decrypt_password(encrypted_password: str):
     return cipher.decrypt(encrypted_password).decode()

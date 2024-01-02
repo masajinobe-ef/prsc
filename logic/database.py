@@ -3,7 +3,7 @@ import os
 
 
 def db_create():
-    database_file = "prsc.db"
+    database_file = "data/prsc.db"
     if not os.path.exists(database_file):
         conn = sqlite3.connect(database_file)
         cursor = conn.cursor()

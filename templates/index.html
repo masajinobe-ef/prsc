@@ -20,8 +20,10 @@
         <form method="post" action="/">
             <label for="master_password">Мастер-пароль:</label>
             <input type="password" id="master_password" name="master_password" required>
-            
+
             <button type="submit">Вход</button>
+
+            <a href="{{ url_for('master') }}">Установить мастер-пароль</a>
         </form>
     </div>
 </body>
