@@ -17,9 +17,17 @@ def load_or_generate_key():
 cipher = load_or_generate_key()
 
 
-def encrypt_password(master_password: str):
+def rotate_key():
+    key_file = "data/key.key"
+    new_key = Fernet.generate_key()
+    with open(key_file, "wb") as key_file:
+        key_file.write(new_key)
+    return Fernet(new_key)
+
+
+def encrypt(master_password: str):
     return cipher.encrypt(master_password.encode())
 
 
-def decrypt_password(encrypted_password: str):
+def decrypt(encrypted_password: str):
     return cipher.decrypt(encrypted_password).decode()
