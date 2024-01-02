@@ -4,21 +4,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>prsc</title>
+    <title>Register</title>
     <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='styles/main.css') }}">
 </head>
 
 <body>
+
     <div id="passwordManager">
         <h1>prsc</h1>
-        <h2>Вход</h2>
+        <h2>Установка мастер-пароля</h2>
 
-        <form method="post" action="/">
+        {% if error %}
+        <p style="color: red;">{{ error }}</p>
+        {% endif %}
+
+        <form method="post" action="/master">
             <label for="master_password">Мастер-пароль:</label>
             <input type="password" id="master_password" name="master_password" required>
-            
-            <button type="submit">Вход</button>
+
+            <label for="confirm_master_password">Подтвердите пароль:</label>
+            <input type="password" id="confirm_master_password" name="confirm_master_password" required>
+
+            <button type="submit">Установить пароль</button>
         </form>
+
     </div>
 </body>
 

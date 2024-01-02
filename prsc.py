@@ -1,103 +1,101 @@
 from flask import Flask, render_template, request, redirect, url_for, session
-from werkzeug.security import generate_password_hash, check_password_hash
+from cryptography.fernet import Fernet
 import sqlite3
+import secrets
 import os
 
 app = Flask(__name__)
 
 # Генерация случайного секретного ключа для подписи сессии
-app.secret_key = os.urandom(24)
+app.secret_key = secrets.token_hex(16)
+
+# Шифрование
+# Загрузка ключа шифрования из файла
+# (или создание нового при первом запуске)
+key_file = "key.key"
+if not os.path.exists(key_file):
+    key = Fernet.generate_key()
+    with open(key_file, "wb") as key_file:
+        key_file.write(key)
+else:
+    with open(key_file, "rb") as key_file:
+        key = key_file.read()
+
+cipher = Fernet(key)
 
 
-def create_user(username, password):
-    con = sqlite3.connect('prsc.db')
-    cur = con.cursor()
-
-    # Хеширование пароля перед сохранением в базе данных
-    hashed_password = generate_password_hash(password,
-                                             method='pbkdf2:sha256',
-                                             salt_length=16)
-
-    # Вставка нового пользователя в таблицу users
-    cur.execute('INSERT INTO Users (username, password) VALUES (?, ?)',
-                (username, hashed_password))
-
-    con.commit()
-    con.close()
+def encrypt_password(master_password: str) -> str:
+    return cipher.encrypt(master_password.encode())
 
 
-def get_user(username):
-    con = sqlite3.connect('prsc.db')
-    cur = con.cursor()
-
-    # Получение пользователя из базы данных по имени пользователя
-    cur.execute('SELECT * FROM users WHERE username = ?', (username,))
-    user = cur.fetchone()
-
-    # Закрытие соединения
-    con.close()
-
-    return user
+def decrypt_password(encrypted_password: str) -> str:
+    return cipher.decrypt(encrypted_password).decode()
 
 
-def check_master_password(password, hashed_password):
-    return check_password_hash(hashed_password, password)
-
-
-def is_user_authenticated():
-    return session.get('authenticated', False)
-
-
-@app.route('/', methods=['GET', 'POST'])
-def index():
+# Страница установки мастер-пароля
+@app.route('/master', methods=['GET', 'POST'])
+def master():
     if request.method == 'POST':
-        master_password = request.form.get('master_password')
+        master_password = request.form['master_password']
+        confirm_master_password = request.form['confirm_master_password']
 
-        user = get_user(session.get('username'))
+        if master_password == confirm_master_password:
+            encrypted_password = encrypt_password(master_password)
 
-        if user and check_master_password(master_password, user[1]):
-            # Устанавливает флаг аутентификации в сессии
-            session['authenticated'] = True
+            # Сохранение зашифрованного пароля в базе данных
+            conn = sqlite3.connect('prsc.db')
+            cursor = conn.cursor()
+            cursor.execute(
+                "UPDATE MasterPassword SET encrypted_password = ?\
+                    WHERE id = 1",
+                (encrypted_password,))
+            conn.commit()
+            conn.close()
 
-            # Подключение к базе данных
-            con = sqlite3.connect('prsc.db')
-            cur = con.cursor()
-
-            # Получение паролей из базы данных
-            cur.execute('SELECT * FROM Passwords')
-            passwords = cur.fetchall()
-
-            # Закрытие соединения
-            con.close()
-
-            # Передача данных в шаблон и отображение таблицы
-            return render_template('index.html', passwords=passwords)
+            return redirect(url_for('login'))
         else:
-            return render_template('login.html',
-                                   message='Неверный мастер-пароль')
+            return render_template('master.html', error="Пароли не совпадают")
 
-    return render_template('login.html', message=None)
+    return render_template('master.html')
 
 
-@app.route('/register', methods=['GET', 'POST'])
-def register():
+# Страница входа
+@app.route('/', methods=['GET', 'POST'])
+def login():
     if request.method == 'POST':
-        username = request.form.get('username')
-        password = request.form.get('password')
+        master_password = request.form['master_password']
 
-        # Создание нового пользователя
-        create_user(username, password)
+        # Проверка совпадения мастер-пароля с базой данных
+        conn = sqlite3.connect('prsc.db')
+        cursor = conn.cursor()
+        cursor.execute("SELECT encrypted_password FROM MasterPassword LIMIT 1")
+        stored_encrypted_password = cursor.fetchone()
+        conn.close()
 
-        return redirect(url_for('index'))
+        if stored_encrypted_password:
+            stored_encrypted_password = stored_encrypted_password[0]
+            decrypted_password = decrypt_password(stored_encrypted_password)
 
-    return render_template('register.html')
+            if master_password == decrypted_password:
+                session['authenticated'] = True
+                return redirect(url_for('display_db'))
+
+    return render_template('index.html')
 
 
-@app.route('/logout')
-def logout():
-    # Удаляет флаг аутентификации из сессии при выходе
-    session.pop('authenticated', None)
-    return redirect(url_for('index'))
+@app.route('/db', methods=['GET', 'POST'])
+def display_db():
+    # Проверка, является ли пользователь аутентифицирован
+    if not session.get('authenticated'):
+        return redirect(url_for('login'))
+
+    conn = sqlite3.connect('prsc.db')
+    cursor = conn.cursor()
+    cursor.execute('SELECT * FROM Passwords')
+    passwords = cursor.fetchall()
+    conn.close()
+
+    return render_template('db.html', passwords=passwords)
 
 
 if __name__ == '__main__':
