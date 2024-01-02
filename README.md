@@ -9,10 +9,10 @@ Features:
 1. Master-password: Access your password vault securely by master-password into the PRSC application.
 2. Add Passwords: Easily add and store passwords with detailed information for each entry.
 3. Edit and Update: Modify existing password entries as needed, keeping your information up-to-date.
-Search Functionality: Quickly find specific passwords using the search feature.
-4. Security First: Utilizes advanced cryptography to ensure the highest level of password protection.
-5. SQLite Database: Stores password data efficiently and securely using the powerful SQLite database.
-6. User-Friendly Interface: Prioritizing ease of use, PRSC allows for convenient password management.
+4. Search Functionality: Quickly find specific passwords using the search feature.
+5. Security First: Utilizes advanced cryptography to ensure the highest level of password protection.
+6. SQLite Database: Stores password data efficiently and securely using the powerful SQLite database.
+7. User-Friendly Interface: Prioritizing ease of use, PRSC allows for convenient password management.
 
 ## Installation
 
