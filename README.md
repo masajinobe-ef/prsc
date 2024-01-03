@@ -4,6 +4,8 @@
 
 This cross-platform solution provides a secure and user-friendly way to store and manage passwords, following the principles of Unix philosophy.
 
+![prsc](img/image.png)
+
 Features:
 
 1. Master-password: Access your password vault securely by master-password.
@@ -23,7 +25,7 @@ $ git clone https://github.com/masajinobe-ef/prsc.git
 $ cd prsc
 $ pip install -r requirements.txt
 $ python prsc.py
-Visit http://localhost:5000 in your web browser to access PRSC.
+Visit http://localhost:8080 in your web browser to access PRSC.
 ```
 
 ### License
