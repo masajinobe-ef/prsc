@@ -7,24 +7,30 @@
     <meta content="true" name="HandheldFriendly" />
     <meta content="width" name="MobileOptimized" />
     <meta content="yes" name="apple-mobile-web-app-capable" />
-    
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-
-    <title>prsc</title>
     <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='styles/main.css') }}">
+    <title>prsc</title>
 </head>
 
 <body>
-    <div id="passwordManager">
+    <div id="password_manager">
         <h1>prsc</h1>
-        <h2>Удалить пароль</h2>
+        <h2>Вход</h2>
 
-        <form method="POST" action="{{ url_for('del_password') }}">
-            <label for="id">ID:</label>
-            <input type="text" name="id" required><br>
+        {% if error %}
+        <p style="color: red;">{{ error }}</p>
+        {% endif %}
 
-            <button type="submit">Удалить</button>
+        <form method="post" action="/login">
+            <label for="mpass">Мастер-пароль:</label>
+
+            <input type="password" id="master_password" name="master_password" required>
+
+            <button type="submit">Вход</button><br>
+
+            <a href="{{ url_for('master_password') }}">Установить мастер-пароль</a>
         </form>
+
     </div>
 </body>
 

@@ -1,7 +1,7 @@
 import json
 import sqlite3
 
-db_path = ('prsc.db')
+db_path = ('../data/prsc.db')
 
 conn = sqlite3.connect(db_path)
 cursor = conn.cursor()

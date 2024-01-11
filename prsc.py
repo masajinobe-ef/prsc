@@ -4,9 +4,7 @@ from flask import Flask, \
     redirect, \
     url_for, \
     session, \
-    abort, \
-    flash, \
-    logging
+    abort
 from logic.crypt import encrypt, decrypt, rotate_key
 from logic.database import db_create
 import sqlite3
@@ -14,27 +12,30 @@ import secrets
 import os
 
 app = Flask(__name__)
-
 app.secret_key = secrets.token_hex(16)
 
 # Создание .db, если не найден
 db_create()
-
 db_path = os.path.join(os.path.dirname(__file__), 'data', 'prsc.db')
 
 
 @app.route('/', methods=['GET', 'POST'])
+def index():
+    return render_template('index.html')
+
+
+@app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
         try:
             master_password = request.form['master_password']
 
-            conn = sqlite3.connect(db_path)
-            cursor = conn.cursor()
-            cursor.execute(
-                "SELECT encrypted_password FROM MasterPassword LIMIT 1")
-            stored_encrypted_password = cursor.fetchone()
-            conn.close()
+            with sqlite3.connect(db_path) as conn:
+                cursor = conn.cursor()
+                cursor.execute(
+                    "SELECT encrypted_password\
+                        FROM MasterPassword LIMIT 1")
+                stored_encrypted_password = cursor.fetchone()
 
             if stored_encrypted_password:
                 stored_encrypted_password = stored_encrypted_password[0]
@@ -44,14 +45,14 @@ def login():
                     session['authenticated'] = True
                     return redirect(url_for('db'))
                 else:
-                    return render_template('index.html',
+                    return render_template('login.html',
                                            error="Отказано в доступе!")
         except Exception as e:
-            print(f"Ошибка входа: {e}")
-            return render_template('index.html',
+            print(f"Ошибка входа {e}")
+            return render_template('login.html',
                                    error="Произошла ошибка при входе.")
 
-    return render_template('index.html')
+    return render_template('login.html')
 
 
 @app.route('/db', methods=['GET', 'POST'])
@@ -60,27 +61,27 @@ def db():
         return redirect(url_for('login'))
 
     try:
-        conn = sqlite3.connect(db_path)
-        cursor = conn.cursor()
-        cursor.execute(
-            'SELECT id, website, encrypted_login, encrypted_password\
-                FROM Passwords')
-        data = cursor.fetchall()
+        with sqlite3.connect(db_path) as conn:
+            cursor = conn.cursor()
+            cursor.execute(
+                'SELECT id, website, encrypted_login, encrypted_password\
+                    FROM Passwords')
+            data = cursor.fetchall()
+
         decrypted_login_password = []
 
         for record in data:
             decrypted_login = decrypt(record[2])
             decrypted_password = decrypt(record[3])
             decrypted_login_password.append(
-                (record[0], record[1], decrypted_login, decrypted_password))
-
-        conn.close()
+                (record[0], record[1],
+                 decrypted_login, decrypted_password))
 
         return render_template('db.html', data=decrypted_login_password)
 
     except Exception as e:
         print(f"Произошла ошибка при запросе данных: {e}")
-        abort(500)
+        abort(500, "Ошибка при запросе данных")
 
 
 @app.route('/add_password', methods=['GET', 'POST'])
@@ -97,21 +98,17 @@ def add_password():
             encrypted_login = encrypt(login)
             encrypted_password = encrypt(password)
 
-            conn = sqlite3.connect(db_path)
-            cursor = conn.cursor()
-            cursor.execute("INSERT INTO Passwords\
-                (website, encrypted_login, encrypted_password)\
-                VALUES (?, ?, ?)",
-                           (website, encrypted_login, encrypted_password))
-            conn.commit()
-            conn.close()
+            with sqlite3.connect(db_path) as conn:
+                conn.execute("INSERT INTO Passwords\
+                    (website, encrypted_login, encrypted_password)\
+                        VALUES (?, ?, ?)",
+                             (website, encrypted_login, encrypted_password))
 
-            flash('Пароль успешно добавлен', 'success')
             return redirect(url_for('db'))
 
         except Exception as e:
             print(f"Произошла ошибка при добавлении пароля: {e}")
-            flash('Произошла ошибка при добавлении пароля', 'danger')
+            abort(500, "Ошибка при добавлении пароля")
 
     return render_template('add_password.html')
 
@@ -125,24 +122,20 @@ def del_password():
         try:
             id = request.form.get('id')
 
-            conn = sqlite3.connect(db_path)
-            cursor = conn.cursor()
-            cursor.execute("DELETE FROM Passwords WHERE id = ?", (id,))
-            conn.commit()
-            conn.close()
+            with sqlite3.connect(db_path) as conn:
+                conn.execute("DELETE FROM Passwords WHERE id = ?", (id,))
 
-            flash('Пароль успешно удален', 'success')
             return redirect(url_for('db'))
 
         except Exception as e:
             print(f"Произошла ошибка при удалении пароля: {e}")
-            flash('Произошла ошибка при удалении пароля', 'danger')
+            abort(500, "Ошибка при удалении пароля")
 
     return render_template('del_password.html')
 
 
-@app.route('/master', methods=['GET', 'POST'])
-def master():
+@app.route('/master_password', methods=['GET', 'POST'])
+def master_password():
     if request.method == 'POST':
         try:
             master_password = request.form['master_password']
@@ -151,27 +144,28 @@ def master():
             if master_password == confirm_master_password:
                 encrypted_password = encrypt(master_password)
 
-                conn = sqlite3.connect(db_path)
-                cursor = conn.cursor()
-                cursor.execute(
-                    "UPDATE MasterPassword SET encrypted_password = ?\
-                        WHERE id = 1", (encrypted_password,))
-                cursor.execute("DELETE FROM Passwords")
-                conn.commit()
-                conn.close()
+                with sqlite3.connect(db_path) as conn:
+                    cursor = conn.cursor()
+                    cursor.execute(
+                        "UPDATE MasterPassword\
+                            SET encrypted_password = ?\
+                                WHERE id = 1",
+                        (encrypted_password,))
+                    cursor.execute("DELETE FROM Passwords")
+                    conn.commit()
 
                 rotate_key()
 
                 return redirect(url_for('login'))
             else:
-                return render_template('master.html',
+                return render_template('master_password.html',
                                        error="Пароли не совпадают!")
 
         except Exception as e:
-            logging.error(f"Произошла ошибка при изменении мастер-пароля: {e}")
-            flash('Произошла ошибка при изменении мастер-пароля', 'danger')
+            print(f"Произошла ошибка при изменении мастер-пароля: {e}")
+            abort(500, "Ошибка при изменении мастер-пароля")
 
-    return render_template('master.html')
+    return render_template('master_password.html')
 
 
 if __name__ == '__main__':

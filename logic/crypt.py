@@ -3,6 +3,10 @@ import os
 
 
 def load_or_generate_key():
+    db_folder = "data"
+    if not os.path.exists(db_folder):
+        os.makedirs(db_folder)
+
     key_file = "data/key.key"
     if not os.path.exists(key_file):
         key = Fernet.generate_key()

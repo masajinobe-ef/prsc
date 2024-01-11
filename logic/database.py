@@ -3,7 +3,12 @@ import os
 
 
 def db_create():
-    db_path = "data/prsc.db"
+    db_folder = "data"
+    db_path = os.path.join(db_folder, "prsc.db")
+
+    if not os.path.exists(db_folder):
+        os.makedirs(db_folder)
+
     if not os.path.exists(db_path):
         conn = sqlite3.connect(db_path)
         cursor = conn.cursor()

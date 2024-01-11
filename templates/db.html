@@ -15,12 +15,11 @@
 </head>
 
 <body>
-    <div id="passwordManager">
+    <div id="password_manager">
         <h1>prsc</h1>
         <h2>Менеджер паролей</h2>
 
         <a href="{{ url_for('add_password') }}">Добавить</a>
-        <a href="{{ url_for('del_password') }}">Удалить</a>
 
         <a href="">JSON</a>
         <a href="">CSV</a>
@@ -32,6 +31,7 @@
                     <th>Сайт</th>
                     <th>Логин</th>
                     <th>Пароль</th>
+                    <th>Действия</th>
                 </tr>
             </thead>
             <tbody>
@@ -41,6 +41,12 @@
                     <td>{{ row[1] }}</td>
                     <td>{{ row[2] }}</td>
                     <td>{{ row[3] }}</td>
+                    <td>
+                        <form method="POST" action="{{ url_for('del_password') }}">
+                            <input type="hidden" name="id" value="{{ row[0] }}">
+                            <button type="submit" class="btn btn-danger">Удалить</button>
+                        </form>
+                    </td>
                 </tr>
                 {% endfor %}
             </tbody>
